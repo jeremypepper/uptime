@@ -101,7 +101,7 @@ plugins:
   # - ./plugins/email
 ```
 
-To modify this configuration, create a `development.yaml` or a `production.yaml` file in the same directory, and override just the settings you need. For instance, to run Uptime on port 80 in production, create a `production.yaml` file as follows:
+To modify this configuration, create a `development.yaml` or a `production.yaml` file in the same directory, and override just the settings you need, then export NODE_ENV=production. For instance, to run Uptime on port 80 in production, create a `production.yaml` file as follows:
 
 ```yaml
 url: 'http://myDomain.com'
