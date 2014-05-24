@@ -55,6 +55,13 @@ var moment     = require('moment');
 var CheckEvent = require('../../models/checkEvent');
 var ejs        = require('ejs');
 
+function isTagInConfiguredTags(configuredTags, eventTags) {
+  for (var i = 0; i < configuredTags.length; i++) {
+    if(eventTags.indexOf(configuredTags[i]) >= 0) return true;
+  };
+  return false;
+}
+
 exports.initWebApp = function(options) {
   var config = options.config.email;
   var mailer = nodemailer.createTransport(config.method, config.transport);
@@ -63,25 +70,28 @@ exports.initWebApp = function(options) {
     if (!config.event[checkEvent.message]) return;
     checkEvent.findCheck(function(err, check) {
       if (err) return console.error(err);
-      var filename = templateDir + checkEvent.message + '.ejs';
-      var renderOptions = {
-        check: check,
-        checkEvent: checkEvent,
-        url: options.config.url,
-        moment: moment,
-        filename: filename
-      };
-      var lines = ejs.render(fs.readFileSync(filename, 'utf8'), renderOptions).split('\n');
-      var mailOptions = {
-        from:    config.message.from,
-        to:      config.message.to,
-        subject: lines.shift(),
-        text:    lines.join('\n')
-      };
-      mailer.sendMail(mailOptions, function(err2, response) {
-        if (err2) return console.error('Email plugin error: %s', err2);
-        console.log('Notified event by email: Check ' + check.name + ' ' + checkEvent.message);
-      });
+      // filter on configured tag value if given
+      if (!config.tags || config.tags.length === 0 || isTagInConfiguredTags(config.tags, checkEvent.tags)) {
+        var filename = templateDir + checkEvent.message + '.ejs';
+        var renderOptions = {
+          check: check,
+          checkEvent: checkEvent,
+          url: options.config.url,
+          moment: moment,
+          filename: filename
+        };
+        var lines = ejs.render(fs.readFileSync(filename, 'utf8'), renderOptions).split('\n');
+        var mailOptions = {
+          from:    config.message.from,
+          to:      config.message.to,
+          subject: lines.shift(),
+          text:    lines.join('\n')
+        };
+        mailer.sendMail(mailOptions, function(err2, response) {
+          if (err2) return console.error('Email plugin error: %s', err2);
+          console.log('Notified event by email: Check ' + check.name + ' ' + checkEvent.message);
+        });
+      }
     });
   });
   console.log('Enabled Email notifications');

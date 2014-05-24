@@ -43,6 +43,7 @@ email:
   message:           
     from:            # The message sender, e.g. 'Fred Foo <foo@blurdybloop.com>'
     to:              # The message recipient, e.g. 'bar@blurdybloop.com, baz@blurdybloop.com'
+  # tags: [email, production] # Email if the event matches any of these tags
   # The email plugin also uses the main `url` param for hyperlinks in the sent emails
 
 basicAuth:
