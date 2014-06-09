@@ -27,6 +27,7 @@ plugins:
   - ./plugins/httpOptions
   # - ./plugins/email
   # - ./plugins/basicAuth
+  # - ./plugins/body # specify a body for an http request
 
 email:
   method:      SMTP  # possible methods are SMTP, SES, or Sendmail

@@ -1,0 +1,13 @@
+<fieldset>
+  <div class="control-group">
+    <label class="control-label">HTTP Body</label>
+    <div class="controls">
+      <textarea name="check[body_content]" class="span8" rows="3" placeholder="http body text"/><%= check.getPollerParam('body_content') || '' %></textarea>
+    </div>
+  </div>
+</fieldset>
+<script type="text/javascript">
+jQuery(function($) {
+  $('#check_form textarea[name="check[body_content]"]').autoResize();
+});
+</script>
