@@ -44,9 +44,9 @@ function findCheckById(id, monitor, callback) {
 };
 
 exports.initMonitor = function(options) {
-  var pollerById = {};
+  var pollerByCheckId = {};
   options.monitor.on('pollerCreated', function(poller, check, details) {
-    pollerById[poller._id] = poller; 
+    pollerByCheckId[check._id] = poller; 
   });
 
   options.monitor.on('pollerPolled', function(check, res, details) {
@@ -56,7 +56,7 @@ exports.initMonitor = function(options) {
       findCheckById(chain_id, options.monitor, function(error, chainedCheck) {
         if (!error && chainedCheck) {
           // attach the parent poller to the current poller
-          var parentPoller = pollerById[check.id];
+          var parentPoller = pollerByCheckId[check._id];
           chainedCheck.pollerParams.parentPoller = parentPoller;
           options.monitor.pollCheck(chainedCheck, function(err, body) {
             if(err) {
