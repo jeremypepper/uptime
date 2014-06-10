@@ -9,7 +9,6 @@ exports.initWebApp = function(options) {
   dashboard.on('populateFromDirtyCheck', function(checkDocument, dirtyCheck, type) {
     if (type !== 'http' && type !== 'https') return;
     if (!dirtyCheck.body_content) return;
-    var body_content = dirtyCheck.body_content;
     checkDocument.setPollerParam('body_content', dirtyCheck.body_content );
   });
 
@@ -27,9 +26,9 @@ exports.initMonitor = function(options) {
 
   options.monitor.on('pollerCreated', function(poller, check, details) {
     if (check.type !== 'http' && check.type !== 'https') return;
-    var options = check.pollerParams && check.pollerParams.body_content;
-    if (!options) return;
-    poller.target.body = check.pollerParams.body_content;
+    var body_content = check.pollerParams && check.pollerParams.body_content;
+    if (!body_content) return;
+    poller.target.body = body_content;
     return;
   });
 

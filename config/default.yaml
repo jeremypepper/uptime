@@ -28,6 +28,7 @@ plugins:
   # - ./plugins/email
   # - ./plugins/basicAuth
   # - ./plugins/body # specify a body for an http request
+  # - ./plugins/randomize # insert random values into the HTTP body
 
 email:
   method:      SMTP  # possible methods are SMTP, SES, or Sendmail
