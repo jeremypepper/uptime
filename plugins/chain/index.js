@@ -10,14 +10,11 @@ exports.initWebApp = function(options) {
   var dashboard = options.dashboard;
 
   dashboard.on('populateFromDirtyCheck', function(checkDocument, dirtyCheck, type) {
-    if (!dirtyCheck.chain_id) return;
-    var chain_id = dirtyCheck.chain_id;
-    checkDocument.setPollerParam('chain_id', dirtyCheck.chain_id );
+    checkDocument.setPollerParam('chainDelay', dirtyCheck.chainDelay);
+    checkDocument.setPollerParam('chain_id', dirtyCheck.chain_id);
   });
 
   dashboard.on('checkEdit', function(type, check, partial) {
-    check.chain_id = '';
-    var options = check.getPollerParam('chain_id');
     partial.push(ejs.render(template, { locals: { check: check } }));
   });
 
@@ -58,17 +55,17 @@ exports.initMonitor = function(options) {
           // attach the parent poller to the current poller
           var parentPoller = pollerByCheckId[check._id];
           chainedCheck.pollerParams.parentPoller = parentPoller;
-          options.monitor.pollCheck(chainedCheck, function(err, body) {
-            if(err) {
-              console.log(err); return  
-            }
-          });
+          setTimeout(function() {
+            options.monitor.pollCheck(chainedCheck, function(err, body) {
+              if(err) {
+                console.log(err); return;
+              }
+            });
+          }, check.pollerParams.chainDelay);
         } else {
           console.error("could not chain to", chain_id, error);
         }
       });
     }
-    
   });
-
 };
