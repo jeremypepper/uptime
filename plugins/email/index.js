@@ -58,7 +58,7 @@ var ejs        = require('ejs');
 function isTagInConfiguredTags(configuredTags, eventTags) {
   for (var i = 0; i < configuredTags.length; i++) {
     if(eventTags.indexOf(configuredTags[i]) >= 0) return true;
-  };
+  }
   return false;
 }
 
@@ -66,6 +66,9 @@ exports.initWebApp = function(options) {
   var config = options.config.email;
   var mailer = nodemailer.createTransport(config.method, config.transport);
   var templateDir = __dirname + '/views/';
+  // used to group emails by message and send them in one email
+  var mailQueue = {};
+  var timer;
   CheckEvent.on('afterInsert', function(checkEvent) {
     if (!config.event[checkEvent.message]) return;
     checkEvent.findCheck(function(err, check) {
@@ -87,12 +90,63 @@ exports.initWebApp = function(options) {
           subject: lines.shift(),
           text:    lines.join('\n')
         };
-        mailer.sendMail(mailOptions, function(err2, response) {
-          if (err2) return console.error('Email plugin error: %s', err2);
-          console.log('Notified event by email: Check ' + check.name + ' ' + checkEvent.message);
-        });
+        var arr = getMailQueue(checkEvent.message);
+        arr.push( { mailOptions: mailOptions, name: check.name });
+        if (!timer) {
+          timer = setTimeout(sendMailQueue, options.config.email.emailDelay || 70000);
+        }
       }
     });
   });
+
+  function getMailQueue(status) {
+    if (!mailQueue[status]) {
+      mailQueue[status] = [];
+    }
+    return mailQueue[status];
+  }
+
+  function sendMailQueue() {
+    var mailOptions;
+    clearTimeout(timer);
+    timer = undefined;
+    var queue = mailQueue;
+    mailQueue = {};
+    for (var status in queue) {
+      if (queue.hasOwnProperty(status)) {
+        var arr = queue[status];
+        if (arr.length == 1) {
+          mailOptions = arr[0].mailOptions;
+          return sendMail(mailOptions);
+        } else {
+          var messages = [];
+          for (var i = 0; i < arr.length; i++) {
+            var item = arr[i];
+            messages.push(item.mailOptions.subject);
+            messages.push(item.mailOptions.text);
+            messages.push("\n");
+            messages.push("====================================================================\n");
+          }
+          if (messages) {
+            mailOptions = {
+              from:    config.message.from,
+              to:      config.message.to,
+              subject: "[" + status + "] " + arr.length + " checks went " + status,
+              text:    messages.join('\n')
+            };
+            return sendMail(mailOptions);
+          }
+        }
+      }
+    }
+  }
+
+  function sendMail(mailOptions) {
+    mailer.sendMail(mailOptions, function(err2, response) {
+      if (err2) return console.error('Email plugin error: %s', err2);
+      console.log('Notified check by email: ' + mailOptions.subject);
+    });
+  }
+
   console.log('Enabled Email notifications');
 };
