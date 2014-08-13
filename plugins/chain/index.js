@@ -51,7 +51,7 @@ exports.initMonitor = function(options) {
     if (chain_id) {
       // get the check of the given id
       findCheckById(chain_id, options.monitor, function(error, chainedCheck) {
-        if (!error && chainedCheck) {
+        if (!error && chainedCheck && chainedCheck.pollerParams) {
           // attach the parent poller to the current poller
           var parentPoller = pollerByCheckId[check._id];
           chainedCheck.pollerParams.parentPoller = parentPoller;
