@@ -23,6 +23,12 @@ var mongoose   = require('./bootstrap');
 var a = analyzer.createAnalyzer(config.analyzer);
 a.start();
 
+// set socket pool size
+if (config.maxSockets) {
+  console.log("setting maxSockets to " + config.maxSockets);
+   http.globalAgent.maxSockets = config.maxSockets;
+}
+
 // web front
 
 var app = module.exports = express();
