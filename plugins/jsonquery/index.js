@@ -9,6 +9,7 @@
 var fs   = require('fs');
 var ejs  = require('ejs');
 var JSPath = require('jspath');
+var URL = require('url');
 
 var template = fs.readFileSync(__dirname + '/views/_detailsEdit.ejs', 'utf8');
 
@@ -37,16 +38,16 @@ exports.initMonitor = function(options) {
     } catch (e) {
       throw new Error('Could not parse JSON');
     }
-
     for (var i = 0; i < queries.length; i++) {
       var query = queries[i].trim();
       if (query) {
-        if(!JSPath.apply(query, json)) {
+        // make the querystring args available for the query
+        var querystring = URL.parse(check.url, true).query;
+        if(!JSPath.apply(query, json, querystring)) {
           throw new Error('Response body does not match query ' + query);
         }
       }
-    };
-    return;
+    }
   });
 
 };
