@@ -29,6 +29,11 @@ if (config.maxSockets) {
    http.globalAgent.maxSockets = config.maxSockets;
 }
 
+// optionaly disable TLS Verification
+if (config.disableTLSVerification) {
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+}
+
 // web front
 
 var app = module.exports = express();
