@@ -148,9 +148,14 @@ app.delete('/checks/:id', function(req, res, next) {
 });
 
 app.get('/tags', function(req, res, next) {
-  Tag.find().sort({ name: 1 }).exec(function(err, tags) {
-    if (err) return next(err);
-    res.render('tags', { tags: tags });
+  // clear out orphaned tags before fetching our tag set.
+  // TODO: the better place for this would be in the model, but there seems to be a delay in tag
+  // insertion/deletion that is preventing the delete from triggering properly
+  Tag.removeOrphanTags(function() {
+    Tag.find().sort({ name: 1 }).exec(function(err, tags) {
+      if (err) return next(err);
+      res.render('tags', { tags: tags });
+    });
   });
 });
 
