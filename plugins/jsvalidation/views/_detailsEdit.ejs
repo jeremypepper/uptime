@@ -1,0 +1,17 @@
+<fieldset>
+  <div class="control-group">
+    <label class="control-label" style="text-align:left">Javascript to validate. Available in scope:
+    <ul>
+      <li>url</li>
+      <li>params</li>
+      <li>statusCode</li>
+      <li>body</li>
+      <li>response</li>
+      <li>json</li>
+    </ul>
+   </label>
+    <div class="controls">
+      <textarea rows="8" name="check[jsvalidate]" rows="3" class="span8" placeholder="js code to validate, return a boolean or Leave blank to disable."><%= check.getPollerParam('jsvalidate') || '' %></textarea>
+    </div>
+  </div>
+</fieldset>
